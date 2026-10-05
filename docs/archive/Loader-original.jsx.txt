@@ -1,0 +1,192 @@
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Environment, Text3D, Center, Float, MeshTransmissionMaterial, Stars } from '@react-three/drei';
+import * as THREE from 'three';
+
+// Galaxia en rotación fluida (inspirada en la estructura 3D del proyecto de referencia)
+const GalaxyBackground = () => {
+  const galaxyRef = useRef();
+  useFrame((state, delta) => {
+    if (galaxyRef.current) {
+      galaxyRef.current.rotation.y += delta * 0.04;
+      galaxyRef.current.rotation.x += delta * 0.015;
+    }
+  });
+  return (
+    <group ref={galaxyRef}>
+      <Stars radius={80} depth={60} count={6000} factor={4} saturation={0.8} fade speed={1} />
+      <Stars radius={120} depth={100} count={2000} factor={6} saturation={1} fade speed={0.5} />
+    </group>
+  );
+};
+
+// Logo M con interacciones de mouse y físicas de salida
+const PremiumM = ({ phase, mouse }) => {
+  const mRef = useRef();
+
+  useEffect(() => {
+    if (mRef.current) {
+      mRef.current.scale.set(0, 0, 0);
+      mRef.current.position.set(0, -2, -5);
+    }
+  }, []);
+
+  useFrame((state, delta) => {
+    if (!mRef.current) return;
+
+    if (phase === 'fill') {
+      mRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.05);
+      mRef.current.position.lerp(new THREE.Vector3(0, 0, 0), 0.05);
+      mRef.current.rotation.y += delta * 0.15;
+      mRef.current.rotation.x = THREE.MathUtils.lerp(mRef.current.rotation.x, mouse.current.y * 0.4, 0.1);
+      
+      const targetYRotation = mouse.current.x * 0.5 + (state.clock.elapsedTime * 0.15);
+      mRef.current.rotation.y = THREE.MathUtils.lerp(mRef.current.rotation.y, targetYRotation, 0.1);
+    } else {
+      // Disparo frontal continuo hacia la cámara antes del destello de apertura
+      mRef.current.position.z = THREE.MathUtils.lerp(mRef.current.position.z, 20, delta * 4);
+      mRef.current.scale.lerp(new THREE.Vector3(15, 15, 15), delta * 4);
+      mRef.current.rotation.y += delta * 4;
+    }
+  });
+
+  return (
+    <Float speed={3} rotationIntensity={0.6} floatIntensity={1.2}>
+      <Center ref={mRef}>
+        <Text3D
+          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json"
+          size={2.5}
+          height={0.4}
+          curveSegments={32}
+          bevelEnabled
+          bevelThickness={0.1}
+          bevelSize={0.05}
+          bevelSegments={16}
+        >
+          M
+          <MeshTransmissionMaterial
+            backside
+            samples={4}
+            thickness={2.5}
+            chromaticAberration={0.08}
+            anisotropy={0.2}
+            distortion={0.3}
+            distortionScale={0.2}
+            temporalDistortion={0.1}
+            color="#ffffff"
+            transmission={1}
+            roughness={0.1}
+          />
+        </Text3D>
+      </Center>
+    </Float>
+  );
+};
+
+export default function Loader({ onFinish }) {
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState('fill'); // 'fill' -> 'reveal' -> 'done'
+  const [mounted, setMounted] = useState(false);
+  const mouse = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lógica de carga exacta de 5 segundos
+  useEffect(() => {
+    if (phase !== 'fill') return;
+    let raf;
+    const start = performance.now();
+    const duration = 5000;
+
+    function tick(now) {
+      const elapsed = now - start;
+      const pct = Math.min(100, (elapsed / duration) * 100);
+      setProgress(pct);
+
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setPhase('reveal'); 
+      }
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
+
+  // Transición de salida sincronizada con el efecto de gota CSS
+  useEffect(() => {
+    if (phase !== 'reveal') return;
+    const timeout = setTimeout(() => {
+      setPhase('done');
+      onFinish?.();
+    }, 800); // 800ms de duración exacta de la gota
+    return () => clearTimeout(timeout);
+  }, [phase, onFinish]);
+
+  const handleMouseMove = (e) => {
+    mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  };
+
+  if (phase === 'done') return null;
+
+  return (
+    <div 
+      onMouseMove={handleMouseMove}
+      className={`fixed inset-0 z-50 bg-[#020205] flex flex-col items-center justify-between overflow-hidden transition-[clip-path] duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] ${
+        phase === 'reveal' ? 'clip-circle-open pointer-events-none' : 'clip-circle-closed'
+      }`}
+    >
+      {/* Lienzo 3D con la Galaxia y la M */}
+      <div className={`absolute inset-0 w-full h-full z-0 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+        <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+          <Suspense fallback={null}>
+            <ambientLight intensity={1.5} />
+            <directionalLight position={[0, 0, 5]} intensity={2} />
+            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} />
+            
+            <Environment preset="city" />
+            <GalaxyBackground />
+            <PremiumM phase={phase} mouse={mouse} />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      <div className="relative z-10 w-full p-8 pointer-events-none" />
+
+      {/* Interfaz de carga estilizada (Inspirada en el bloque principal del diseño de GitHub) */}
+      <div className={`relative z-10 w-full max-w-md px-8 flex flex-col items-center mb-16 transition-all duration-500 pointer-events-none ${
+        !mounted ? 'opacity-0 translate-y-12' : 
+        phase === 'reveal' ? 'opacity-0 scale-95' : 'opacity-100 translate-y-0'
+      }`}>
+        <div className="w-full flex justify-between items-end mb-3">
+          <span className="font-mono text-[10px] text-white/50 tracking-[0.2em] uppercase">
+            Welcome To MijahelDev
+          </span>
+          <span className="font-sans font-light text-3xl text-white tracking-widest tabular-nums">
+            {Math.floor(progress)}%
+          </span>
+        </div>
+        <div className="w-full h-[1px] bg-white/10 overflow-hidden">
+          <div 
+            className="h-full bg-white transition-all ease-linear"
+            style={{ width: `${progress}%`, transitionDuration: '50ms' }}
+          />
+        </div>
+      </div>
+
+      {/* Footer minimalista */}
+      <div className={`absolute bottom-8 left-8 transition-opacity duration-500 pointer-events-none ${
+        !mounted ? 'opacity-0' : 
+        phase === 'reveal' ? 'opacity-0' : 'opacity-100'
+      }`}>
+        <span className="font-mono text-xs text-white/30 tracking-widest uppercase">
+          mijaheldev
+        </span>
+      </div>
+    </div>
+  );
+}
+

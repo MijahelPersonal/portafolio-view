@@ -1,0 +1,18 @@
+---
+import NarrativeCanvas from '../three/NarrativeCanvas.jsx';
+import { introduction } from '../../data/introduction';
+---
+<section id="presentacion" class="video-journey" aria-labelledby="presentation-title">
+  <div class="intro-stage">
+    <div class="intro-frame">
+      {!introduction.src && <NarrativeCanvas client:visible />}
+      {introduction.src ? <video class="intro-video" controls playsinline preload="metadata" poster={introduction.poster || undefined} data-cursor="PLAY"><source src={introduction.src} type="video/mp4" /></video>
+      : <div class="intro-placeholder"><h2 id="presentation-title">Una mirada<br /><em>más cerca.</em></h2><p>Mi presentación en vídeo llegará aquí.</p><span class="intro-pending">Vídeo pendiente · espacio preparado</span></div>}
+      {introduction.src && <h2 id="presentation-title" class="sr-only">Mi presentación</h2>}
+      <div class="intro-narrative" aria-label="Frases temporales de presentación">
+        {introduction.phrases.map(phrase => <div class="intro-word"><small>{introduction.temporary ? 'Texto temporal / por reemplazar' : 'MijahelDev'}</small><p>{phrase}</p></div>)}
+      </div>
+    </div>
+  </div>
+</section>
+

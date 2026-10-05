@@ -1,0 +1,4 @@
+Country boundaries: Natural Earth, via https://github.com/datasets/geo-countries
+Original Natural Earth data is public domain. Dataset: Open Data Commons Public Domain Dedication and License.
+https://opendatacommons.org/licenses/pddl/1-0/
+Simplified for display; not authoritative geographic claims.

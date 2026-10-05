@@ -1,0 +1,48 @@
+---
+import Introduction from '../components/sections/Introduction.astro';
+import Navbar from '../components/sections/Navbar.astro';
+import HeroCanvas from '../components/three/HeroCanvas.jsx';
+import Loader from '../components/ui/Loader.jsx';
+import CursorGlow from '../components/effects/CursorGlow.astro';
+import ProjectCard from '../components/sections/ProjectCard.astro';
+import { technologies } from '../data/technologies';
+import { projects } from '../data/projects';
+import '../styles/global.css';
+---
+<html lang="es">
+  <head>
+    <script is:inline>
+      // Run before the document can restore its previous scroll or resolve a hash.
+      history.scrollRestoration = 'manual';
+      if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
+      const resetInitialScroll = () => {
+        if (!window.__loaderRevealed) window.scrollTo(0, 0);
+      };
+      resetInitialScroll();
+      document.addEventListener('DOMContentLoaded', resetInitialScroll, { once: true });
+      window.addEventListener('load', resetInitialScroll, { once: true });
+    </script>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="MijahelDev. Desarrollo web, tecnologías y proyectos: una exploración entre interfaces, lógica y creatividad." /><meta name="theme-color" content="#080808" /><link rel="icon" href="/favicon.svg" /><title>MijahelDev — Desarrollo & creatividad</title></head>
+  <body>
+    <a href="#sobre-mi" class="skip-link">Saltar al contenido</a>
+    <Loader client:load /><Navbar /><CursorGlow />
+    <main>
+      <section id="inicio" class="hero">
+        <div class="hero-copy"><p class="eyebrow" data-reveal>Hola, soy Mijahel</p><h1 data-reveal>Del código<br />a lo <em>posible.</em></h1><p class="hero-description" data-reveal>Construyo experiencias web que conectan diseño, lógica y personas.</p><a class="button primary" href="#portafolio" data-cursor="VIEW">Explora mis proyectos <span aria-hidden="true">↗</span></a></div>
+        <div class="globe-stage"><div class="globe-fallback" aria-hidden="true"></div><HeroCanvas client:visible /></div>
+        <div class="hero-bottom"><a href="#sobre-mi" class="scroll-cue">Desliza para explorar <span aria-hidden="true">↓</span></a></div>
+      </section>
+      <section id="sobre-mi" class="section about"><p class="eyebrow" data-reveal>01 / Sobre mí</p><div><h2 data-reveal>Curiosidad que se<br />convierte en <em>código.</em></h2><div class="about-copy" data-reveal><p>Soy Mijahel, desarrollador web. Me interesa conectar lo que ves en una interfaz con la lógica que la hace funcionar.</p><p>De una idea a una aplicación: exploro tecnologías frontend y backend para construir soluciones claras, útiles y con carácter.</p><a class="text-link" href="#skills">Conoce mi stack <span aria-hidden="true">↘</span></a></div></div></section>
+      <section id="skills" class="section stack"><div class="section-heading"><p class="eyebrow" data-reveal>02 / Tecnologías</p><h2 data-reveal>Las piezas de<br /><em>cada idea.</em></h2><p data-reveal>Interfaces, servicios y datos.<br />Un stack para conectar todo.</p></div><div class="technology-grid">{technologies.map((group, index) => <article class="technology-group" data-reveal><div class="technology-heading"><span class="tech-index">0{index + 1}</span><span aria-hidden="true">{['⌘', '{ }', '▤', '↗'][index]}</span></div><h3>{group.title}</h3><p>{group.label}</p><ul>{group.items.map(item => <li><span class="tech-icon" aria-hidden="true">{item.slice(0,2).toUpperCase()}</span>{item}</li>)}</ul></article>)}</div></section>
+      <Introduction />
+      <section id="portafolio" class="section projects"><div class="section-heading"><p class="eyebrow" data-reveal>04 / Trabajo seleccionado</p><h2 data-reveal>Ideas que ya<br />tienen <em>forma.</em></h2><p data-reveal>Una selección personal.<br />Y espacio para lo que viene.</p></div><div class="projects-grid">{projects.map((project, index) => <ProjectCard project={project} index={index} />)}</div></section>
+      <section id="contacto" class="section contact"><p class="eyebrow" data-reveal>05 / Conectemos</p><h2 data-reveal>La próxima idea<br />empieza con un <em>hola.</em></h2><a class="button primary" href="https://github.com/MijahelPersonal" target="_blank" rel="noopener noreferrer" data-cursor="GITHUB">Encuéntrame en GitHub ↗</a><form id="contact-form" data-reveal><h3>Prepara tu mensaje</h3><label for="name">Tu nombre</label><input id="name" name="name" autocomplete="name" required maxlength="100" /><label for="email">Tu correo</label><input id="email" name="email" type="email" autocomplete="email" required maxlength="254" /><label for="message">Cuéntame tu idea</label><textarea id="message" name="message" rows="3" required maxlength="4000"></textarea><button class="button" type="submit">Copiar mensaje <span aria-hidden="true">↗</span></button><p id="form-status" role="status">Puedes copiar tu mensaje. El envío directo aún no está disponible.</p></form></section>
+    </main><footer><a class="nav-identity" href="#inicio">MijahelDev</a><span>MijahelDev © {new Date().getFullYear()}</span><a href="#inicio">Volver arriba ↑</a></footer>
+    <script>import '../animations/experience';</script>
+  </body>
+</html>
+
+
+
+
+

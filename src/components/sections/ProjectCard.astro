@@ -1,0 +1,22 @@
+---
+import type { Project } from '../../data/projects';
+interface Props { project: Project; index: number }
+const { project, index } = Astro.props;
+---
+<article class:list={['project-card', { upcoming: project.upcoming }]}>
+  <div class="project-visual" data-tilt data-cursor={project.upcoming ? undefined : 'VIEW'}>
+    {project.previewType === 'video' && project.video ? <video muted loop playsinline preload="none" poster={project.image} aria-label={`Demostración de ${project.title}`}><source src={project.video} type="video/mp4" /></video>
+      : project.image ? <img src={project.image} alt={project.imageAlt || `Captura de ${project.title}`} loading="lazy" width="1280" height="720" />
+      : <div class="preview-placeholder"><span class="preview-symbol" aria-hidden="true">+</span><span>Próximamente</span><small>En desarrollo</small></div>}
+    <span class="project-number">0{index + 1}</span>
+    {project.mediaCaption && <span class="media-caption">{project.mediaCaption}</span>}
+  </div>
+  <div class="project-info"><div><p class="eyebrow">{project.upcoming ? 'En desarrollo' : 'Proyecto seleccionado'}</p><h3>{project.title}</h3></div><p>{project.description}</p></div>
+  <ul class="tags" aria-label="Tecnologías">{project.tags.map(tag => <li>{tag}</li>)}</ul>
+  <div class="project-links">
+    {project.github && <a class="button" href={project.github} target="_blank" rel="noopener noreferrer" data-cursor="GITHUB">GitHub <span aria-hidden="true">↗</span></a>}
+    {project.demo && <a class="button primary" href={project.demo} target="_blank" rel="noopener noreferrer" data-cursor="OPEN">Ver proyecto <span aria-hidden="true">↗</span></a>}
+    {project.upcoming && <span class="project-pending">El próximo capítulo ↗</span>}
+  </div>
+</article>
+

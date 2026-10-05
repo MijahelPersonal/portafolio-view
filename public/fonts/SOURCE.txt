@@ -1,0 +1,2 @@
+Source: https://github.com/mrdoob/three.js/blob/master/examples/fonts/helvetiker_bold.typeface.json
+Used by the original portfolio loader; downloaded locally to avoid a runtime remote request.

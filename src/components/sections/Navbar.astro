@@ -1,0 +1,73 @@
+---
+const links = [{ href: '#sobre-mi', label: 'Sobre mí' }, { href: '#skills', label: 'Tecnologías' }, { href: '#portafolio', label: 'Proyectos' }, { href: '#contacto', label: 'Contacto' }];
+---
+<nav id="navbar" aria-label="Navegación principal">
+  <a class="nav-identity" href="#inicio">MijahelDev</a>
+  <button id="nav-toggle" aria-controls="nav-panel" aria-expanded="false">
+    <span class="toggle-copy"><span class="toggle-menu">MENU</span><span class="toggle-close" aria-hidden="true">CERRAR</span></span>
+    <span class="menu-glyph" aria-hidden="true"><span class="menu-dot"></span><span class="menu-dot"></span></span>
+  </button>
+</nav>
+<div id="nav-panel" class="nav-panel" popover="manual">
+  <nav aria-label="Secciones del portafolio"><ul class="panel-links">{links.map((link,index) => <li><a href={link.href}><span class="menu-index">0{index+1}</span><span class="menu-label">{link.label}</span><span class="menu-arrow" aria-hidden="true">↗</span></a></li>)}</ul></nav>
+</div>
+<script>
+  import gsap from 'gsap';
+  import { scrollToAnchor } from '../../animations/navigation';
+  const nav=document.querySelector<HTMLElement>('#navbar')!;
+  const toggle=document.querySelector<HTMLButtonElement>('#nav-toggle')!;
+  const panel=document.querySelector<HTMLElement>('#nav-panel')!;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let open=false, mounted=false, restoreFocus=false, frame=0;
+  const timeline=gsap.timeline({paused:true,onReverseComplete:finishClose});
+  timeline.fromTo(panel,{clipPath:'inset(0 0 95% 75% round 32px)',scale:.9,y:-10,opacity:0,filter:'blur(7px)'},{clipPath:'inset(0% 0% 0% 0% round 28px)',scale:1,y:0,opacity:1,filter:'blur(0px)',duration:.45,ease:'power3.out'})
+    .fromTo('.panel-links li',{y:15,opacity:0},{y:0,opacity:1,stagger:.055,duration:.3,ease:'power3.out'},.14);
+  function position(){
+    const rect=toggle.getBoundingClientRect();
+    panel.style.setProperty('--panel-top',Math.min(rect.bottom+12,innerHeight-80)+'px');
+    const viewport=document.documentElement.clientWidth;
+    const right=Math.max(16,viewport-rect.right);
+    panel.style.right=right+'px';
+    panel.style.width=Math.min(350,viewport-right-16)+'px';
+  }
+  function light(){
+    toggle.classList.add('is-switching');
+    gsap.fromTo(toggle,{'--light-angle':'0deg'},{'--light-angle':'360deg',duration:.7,ease:'none',overwrite:'auto',onComplete:()=>toggle.classList.remove('is-switching')});
+  }
+  function finishClose(){
+    if(open)return;
+    if(typeof panel.hidePopover==='function')panel.hidePopover();
+    else panel.classList.remove('panel-mounted');
+    mounted=false;
+    if(restoreFocus)toggle.focus({preventScroll:true});
+  }
+  function close(focus=false){
+    if(!open)return;
+    open=false;restoreFocus=focus;toggle.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Abrir menú');
+    light();
+    if(reduced.matches){timeline.progress(0);finishClose();}else timeline.timeScale(1.4).reverse();
+  }
+  toggle.addEventListener('click',()=>{
+    if(open){close(true);return;}
+    open=true;restoreFocus=false;position();
+    if(!mounted){if(typeof panel.showPopover==='function')panel.showPopover();else panel.classList.add('panel-mounted');mounted=true;}
+    toggle.classList.add('menu-open');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Cerrar menú');
+    light();if(reduced.matches)timeline.progress(1);else timeline.timeScale(1).play();
+  });
+  document.addEventListener('pointerdown',event=>{const target=event.target as Node;if(open&&!panel.contains(target)&&!toggle.contains(target))close();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&open){event.preventDefault();close(true);}if(event.key==='Tab'&&open){requestAnimationFrame(()=>{if(!panel.contains(document.activeElement)&&document.activeElement!==toggle)close();});}});
+  panel.querySelectorAll<HTMLAnchorElement>('a').forEach(link=>link.addEventListener('click',event=>{
+    if(event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();close();scrollToAnchor(link.hash);
+  }));
+  // Popovers live in the top layer. Place them after the trigger for keyboard traversal.
+  toggle.addEventListener('keydown',event=>{if(open&&event.key==='Tab'&&!event.shiftKey){event.preventDefault();panel.querySelector<HTMLAnchorElement>('a')?.focus();}});
+  function update(){frame=0;if(open&&getComputedStyle(nav).visibility==='hidden')close();const progress=Math.max(0,Math.min(1,scrollY/180));nav.style.setProperty('--nav-alpha',String(progress*.75));nav.style.setProperty('--nav-blur',`${progress*16}px`);nav.style.setProperty('--nav-space',`${30-progress*10}px`);if(open)position();}
+  window.addEventListener('scroll',()=>{if(!frame)frame=requestAnimationFrame(update);},{passive:true});
+  window.addEventListener('resize',position);
+  new MutationObserver(()=>{if(open&&nav.style.visibility==='hidden')close();}).observe(nav,{attributes:true,attributeFilter:['style']});
+  update();
+</script>
+
+
+
