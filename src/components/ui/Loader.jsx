@@ -30,8 +30,9 @@ export default function Loader() {
     return()=>{disposed=true;cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);document.body.style.overflow=previousOverflow;};
   }, []);
   if(phase==='done')return null;
-  return <div className={`welcome welcome-${phase}`} aria-hidden="true"><LoaderScene state={state}/><div className="loader-interface"><div><span>BIENVENIDO AL PORTAFOLIO</span><span ref={percent} className="loader-percentage">0%</span></div><div className="loader-track"><div ref={bar} className="loader-bar"/></div></div></div>;
+  return <div className={`welcome welcome-${phase}`} aria-hidden="true"><LoaderScene state={state}/><div className="loader-interface"><div><span>BIENVENIDO AL PORTAFOLIO</span></div><div className="loader-track"><div ref={bar} className="loader-bar"/></div><span ref={percent} className="loader-percentage">0%</span></div></div>;
 }
+
 
 
 

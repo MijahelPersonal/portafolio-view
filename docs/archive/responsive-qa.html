@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Responsive QA</title><style>html,body{margin:0;height:100%;overflow:clip;background:#27232d;color:#fff;font:12px monospace}iframe{display:block;border:0;margin:auto}pre{display:none}</style></head><body><iframe id="preview"></iframe><pre id="results"></pre><script>
+const params=new URLSearchParams(location.search),f=document.querySelector('iframe'),out=document.querySelector('pre');f.style.width=(params.get('w')||390)+'px';f.style.height=(params.get('h')||844)+'px';f.src='/';
+let center;
+f.addEventListener('load',()=>{const w=f.contentWindow,d=w.document;const timer=setInterval(()=>{const l=d.querySelector('.loader-interface');if(l&&!center&&parseInt(d.querySelector('.loader-percentage')?.textContent)>0){const r=l.getBoundingClientRect();center={dx:Math.round((r.left+r.width/2-w.innerWidth/2)*100)/100,dy:Math.round((r.top+r.height/2-w.innerHeight/2)*100)/100,width:r.width};}
+if(!d.querySelector('.welcome')){clearInterval(timer);out.textContent=JSON.stringify({width:w.innerWidth,height:w.innerHeight,center,overflow:d.documentElement.scrollWidth>d.documentElement.clientWidth,heroHeight:Math.round(d.querySelector('.hero').getBoundingClientRect().height),headingWidth:Math.round(d.querySelector('h1').getBoundingClientRect().width),technologyColumns:getComputedStyle(d.querySelector('.technology-grid')).gridTemplateColumns,projectColumns:getComputedStyle(d.querySelector('.projects-grid')).gridTemplateColumns},null,2);}},30);});
+</script></body></html>
+
+
