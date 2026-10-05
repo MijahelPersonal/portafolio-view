@@ -1,0 +1,82 @@
+/* One source for the loader in dev and production.
+   Positioning belongs to the parent; only the inner animation moves. */
+.welcome {
+  position:fixed;
+  inset:0;
+  z-index:90;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  overflow:hidden;
+  background:#020205;
+  pointer-events:auto;
+  clip-path:inset(0 round 0);
+  transition:clip-path .85s cubic-bezier(.76,0,.24,1);
+  animation:entry-recovery .1s 6s forwards;
+}
+.loader-position {
+  position:relative;
+  width:min(440px,100%);
+  text-align:center;
+}
+.loader-animation { transition:opacity .4s,transform .65s; }
+.loader-heading { display:flex; justify-content:center; align-items:center; margin-bottom:24px; }
+.loader-heading > span {
+  font:500 11px/1.6 monospace;
+  letter-spacing:.16em;
+  color:#aaa5b3;
+}
+.loader-percentage {
+  display:block;
+  margin-top:18px;
+  font-size:24px;
+  font-weight:300;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.04em;
+  line-height:1;
+}
+.loader-track {
+  width:100%;
+  height:3px;
+  border-radius:8px;
+  background:#ffffff14;
+  box-shadow:0 0 20px #9b6dff0c;
+  perspective:400px;
+  overflow:hidden;
+}
+.loader-bar {
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:inherit;
+  transform:scaleX(0);
+  transform-origin:left;
+  background:linear-gradient(90deg,#c3a7ff,#ede5ff);
+  box-shadow:0 0 12px #9b6dff65;
+  overflow:hidden;
+}
+.loader-bar::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(100deg,transparent 30%,#fff9 50%,transparent 70%);
+  transform:translateX(-100%);
+  animation:progress-light 1.4s linear infinite;
+}
+.loader-scene { position:absolute; inset:0; }
+.loader-scene canvas { display:block; width:100%; height:100%; opacity:0; transition:opacity .3s; }
+.loader-scene-ready canvas { opacity:1; }
+.welcome-revealing {
+  pointer-events:none;
+  clip-path:inset(0 0 100% round 0 0 40% 40%);
+}
+.welcome-revealing .loader-animation { opacity:0; transform:translateY(-20px); }
+@keyframes progress-light { to { transform:translateX(100%); } }
+@keyframes entry-recovery { to { visibility:hidden; pointer-events:none; } }
+@media(max-width:760px) {
+  .loader-heading > span { font-size:10px; letter-spacing:.12em; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .welcome { display:none; }
+  .loader-bar::after { animation:none; }
+}

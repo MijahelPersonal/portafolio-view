@@ -1,35 +1,4 @@
 /* Layout corrections for small viewports. Desktop composition stays unchanged. */
-.welcome {
-  display:grid;
-  place-items:center;
-  padding:24px;
-}
-.loader-interface {
-  position:relative;
-  inset:auto;
-  width:min(440px,100%);
-  margin:0;
-  translate:none;
-  transform:none;
-  text-align:center;
-}
-.loader-interface > div:first-child {
-  justify-content:center;
-  margin-bottom:24px;
-}
-.loader-interface > div:first-child > span:first-child {
-  font-size:11px;
-  line-height:1.6;
-  letter-spacing:.16em;
-}
-.loader-interface > .loader-percentage {
-  display:block;
-  margin-top:18px;
-  font-size:24px;
-  line-height:1;
-}
-.welcome-revealing .loader-interface { transform:translateY(-20px); }
-
 @media(max-width:1024px) {
   .hero-copy,.section-heading > *, .about > div,.technology-group,.project-info > * { min-width:0; }
   .section { padding:88px 5%; }
@@ -98,7 +67,6 @@
   .intro-word small { font-size:8px; line-height:1.6; margin-bottom:20px; }
   footer { flex-wrap:wrap; gap:20px; }
   footer > a:last-child { min-height:44px; display:flex; align-items:center; }
-  .loader-interface > div:first-child > span:first-child { font-size:10px; letter-spacing:.12em; }
 }
 
 @media(max-width:420px) {
@@ -118,8 +86,4 @@
 
 @media(max-width:1024px) and (orientation:landscape) and (max-height:600px) {
   .hero { min-height:620px; height:auto; max-height:none; padding-top:104px; }
-}
-
-@media(prefers-reduced-motion:reduce) {
-  .welcome { display:none; }
 }
